@@ -1,6 +1,12 @@
-import sqlite3
+from sqlite3 import connect
 
-con = sqlite3.connect('authme.db')
+date = 0 # TIMESTAMP времени с которого считать игроков
+
+if len(date) == 10: date = str(date) + '000'
+elif len(date) == 13: pass
+else: raise 'date не в формате TIMESTAMP'
+
+con = connect('authme.db')
 cur = con.cursor()
 
 cur.execute("""
@@ -15,8 +21,8 @@ cur.execute("""
 cur.execute("""
         INSERT INTO afterDay (username, password, ip, regip, regdate)
         SELECT realname, password, ip, regip, regdate FROM authme
-        WHERE regdate >= 1623963600000;
-    """)
+        WHERE regdate >= %s;
+    """ % date)
 
 con.commit()
 con.close()
